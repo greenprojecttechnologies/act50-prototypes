@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Entity, EntityLevel, AllocationStrategy, LevelToggle } from './types/allocation';
 import { mockCompanyData } from './data/mockData';
+import { mockCustomers, mockProducts, mockCustomProperties, SimpleAllocationItem } from './data/simpleAllocationData';
 import { SettingsPanel } from './components/SettingsPanel';
 import { AllocationTable } from './components/AllocationTable';
+import { SimpleAllocationTable } from './components/SimpleAllocationTable';
 import { Button } from './components/ui/button';
 
 const initialLevelToggles: LevelToggle[] = [
@@ -17,6 +19,9 @@ const initialLevelToggles: LevelToggle[] = [
 function App() {
   const [levelToggles, setLevelToggles] = useState<LevelToggle[]>(initialLevelToggles);
   const [companyData, setCompanyData] = useState(mockCompanyData);
+  const [customers, setCustomers] = useState<SimpleAllocationItem[]>(mockCustomers);
+  const [products, setProducts] = useState<SimpleAllocationItem[]>(mockProducts);
+  const [customProperties, setCustomProperties] = useState<SimpleAllocationItem[]>(mockCustomProperties);
 
   const handleToggleLevel = (level: EntityLevel) => {
     setLevelToggles((prev) =>
@@ -120,6 +125,37 @@ function App() {
     levelToggles.filter((t) => t.enabled).map((t) => t.level)
   );
 
+  // Handlers for simple allocation tables
+  const handleCustomerEnergyChange = (itemId: string, percentage: number) => {
+    setCustomers((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? { ...item, renewableEnergy: (item.consumption * percentage) / 100 }
+          : item
+      )
+    );
+  };
+
+  const handleProductEnergyChange = (itemId: string, percentage: number) => {
+    setProducts((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? { ...item, renewableEnergy: (item.consumption * percentage) / 100 }
+          : item
+      )
+    );
+  };
+
+  const handleCustomPropertyEnergyChange = (itemId: string, percentage: number) => {
+    setCustomProperties((prev) =>
+      prev.map((item) =>
+        item.id === itemId
+          ? { ...item, renewableEnergy: (item.consumption * percentage) / 100 }
+          : item
+      )
+    );
+  };
+
   // Calculate total renewable energy
   const calculateTotalRenewableEnergy = (entities: Entity[]): number => {
     return entities.reduce((total, entity) => {
@@ -144,6 +180,24 @@ function App() {
         <SettingsPanel
           levelToggles={levelToggles}
           onToggleLevel={handleToggleLevel}
+        />
+
+        <SimpleAllocationTable
+          title="Customers"
+          items={customers}
+          onRenewableEnergyChange={handleCustomerEnergyChange}
+        />
+
+        <SimpleAllocationTable
+          title="Products"
+          items={products}
+          onRenewableEnergyChange={handleProductEnergyChange}
+        />
+
+        <SimpleAllocationTable
+          title="Custom Properties"
+          items={customProperties}
+          onRenewableEnergyChange={handleCustomPropertyEnergyChange}
         />
 
         <AllocationTable
