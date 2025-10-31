@@ -117,3 +117,4 @@ export const SimpleAllocationTable: React.FC<SimpleAllocationTableProps> = ({
   );
 };
 
+
